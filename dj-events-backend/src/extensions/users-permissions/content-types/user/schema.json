@@ -72,6 +72,12 @@
     "slugh": {
       "type": "uid",
       "targetField": "username"
+    },
+    "eventss": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::event.event",
+      "mappedBy": "users_permissions_user"
     }
   }
 }

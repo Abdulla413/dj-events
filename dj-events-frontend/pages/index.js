@@ -2,15 +2,24 @@ import Layout from '@/components/Layout'
 import {API_URL}from "@/config/index"
 import EventItem from '@/components/EventItem'
 import Link from "next/link"
+import {useEffect, useState} from "react"
+import events from './api/events'
 
 export default function Home({events}) {
-  console.log(events)
+// const [events, setEvents]=useState([]);
+// useEffect (()=>{
+//   fetch(`${API_URL}/api/events?_sort=date:ASC&_limit=3`)
+//   .then((res)=> res.json())
+//   .then(setEvents);
+
+// }, []);
+ 
   return (
     <Layout>
      <h1> Upcoming Events </h1>
      {events.length ===0 && <h3>No events to show</h3> }
-     {events.map(evt=>(
-       <EventItem key={evt.id} evt={evt}/>
+     {events.map((evt)=>(
+       <EventItem key={evt.id} evt={evt.attributes}/>
      ))}
 
 {events.length>0 && (<Link href="/events">
@@ -23,12 +32,12 @@ export default function Home({events}) {
 }
 
 export async function getStaticProps(){
-  const res= await fetch(`${API_URL}/api/events`)
-  const events= await res.json()
-  console.log(events)
+  const res= await fetch(`${API_URL}/events?_sort=date:ASC&_limit=3&populate=*`)
+  const data= await res.json()
+ const events=data.data
 
   return{
-    props:{events:events.slice(0,3)},
+    props:{events},
     revalidate:1
   }
 }
