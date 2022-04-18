@@ -27,7 +27,7 @@ const router =useRouter();
 const handleSubmit = async (e)=>{
   e.preventDefault()
   
-  // validation
+  // validatio
 
   const hasEmpityFields=Object.values(values).some(
     (element)=>element===""
