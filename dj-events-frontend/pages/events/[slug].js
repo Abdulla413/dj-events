@@ -4,12 +4,32 @@ import styles from "@/styles/Event.module.css"
 import Link from "next/link"
 import { FaPencilAlt, FaTimes } from 'react-icons/fa'
 import Image from 'next/image'
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import router from 'next/router'
+import { useRouter } from 'next/router'
+
+
+
 
 export default function EventPage({evt}) {
   console.log(evt, "i am single evt")
 
-  const deleteEvent =(e)=>{
-    console.log(deleteEvent)
+  const router = useRouter()
+
+  const deleteEvent =async (e)=>{
+   if(confirm("Are you sure?")){
+     const res=await fetch(`${API_URL}/events/${evt.id}`, 
+     {
+     method :"DELETE",
+    })
+    const data=await res.json()
+    if(!res.ok){
+      toast.error(data.message)
+    }else{
+      router.push("/events")
+    }
+   }
   }
   return (
     <Layout title="Event Page">
@@ -24,7 +44,8 @@ export default function EventPage({evt}) {
       
          <span>{new Date(evt.attributes.date).toLocaleDateString("en-DE")} at {evt.attributes.time}</span>
          <h1>{evt.attributes.name}</h1>
-         {evt.attributes.image && (
+         <ToastContainer/>
+         {evt.attributes.image.data && (
         <div className={styles.image}> <Image src={evt.attributes.image.data.attributes.formats.medium.url} width={960} height={600}/> </div>
       )}
       <h3>Performers:</h3>
@@ -45,46 +66,50 @@ export default function EventPage({evt}) {
     </Layout>
   )
 }
-export async function getStaticPaths(){
-  const res= await fetch(`${API_URL}/events`)
-  const data=await res.json()
-  const events = data.data
+// export async function getStaticPaths(){
+//   const res= await fetch(`${API_URL}/events`)
+//   const data=await res.json()
+//   const events = data.data
+//   console.log(events, "data tata")
 
-  const paths = events.map(evt=>({
-    params:{slug:evt.attributes.slug}
-  }))
-
-  console.log(events, " yes i am 789")
+//   const paths = events.map(evt=>({
+//     params:{slug:evt.attributes.slug}
+//   }))
 
   
-  return{
-    paths,
-    fallback:true
-  }
-}
+//   console.log(paths, " yes i am 789")
 
-export async function getStaticProps({params:{slug}}){
+  
+//   return{
+//     paths,
+//     fallback:true
+//   }
+// }
+
+// export async function getStaticProps({params:{slug}}){
+// const res=await fetch(`${API_URL}/events?slug=${slug}&populate=*`)
+// const data=await res.json()
+// const events=data.data
+// console.log(events, "456789")
+// return{
+//   props:{
+//     evt:events
+//   },
+//   revalidate: 1
+
+// }
+// }
+
+
+
+export async function getServerSideProps({query:{slug}}){
 const res=await fetch(`${API_URL}/events?filters[slug][$eq]=${slug}&populate=*`)
 const data=await res.json()
 const events=data.data
-console.log(events, "456789")
+
 return{
   props:{
     evt:events[0]
-  },
-  revalidate: 1
-
+  }
 }
 }
-
-
-
-// export async function getServerSideProps({query:{slug}}){
-// const res=await fetch(`${API_URL}/api/events/${slug}`)
-// const events=await res.json()
-// return{
-//   props:{
-//     evt:events[0]
-//   }
-// }
-// }

@@ -6,16 +6,19 @@ import { API_URL } from "@/config/index";
 import styles from "@/styles/Form.module.css"
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import moment from "moment";
 
-export default function AddEventPage() {
+export default function EditEventPage({evt}) {
+    console.log(evt)
+  
 const [values, setValues]=useState({
-  name:"",
-  performers:"", 
-  venue:"", 
-  address:"", 
-  date:"", 
-  time:"", 
-  description:"", 
+  name:evt.attributes.name,
+  performers:evt.attributes.performers, 
+  venue:evt.attributes.venue, 
+  address:evt.attributes.address, 
+  date:evt.attributes.date, 
+  time:evt.attributes.time, 
+  description:evt.attributes.description, 
 
 })
 
@@ -34,12 +37,12 @@ const handleSubmit = async (e)=>{
     toast.error("Please fill in all fields")
   }
 
-  const res = await fetch(`${API_URL}/events`,
-
-  {method:"POST", 
-
-  headers:{
-    "Content-Type":"application/json"},
+  const res = await fetch(`${API_URL}/events/${evt.id}`, {
+    
+    method:"PUT", 
+    headers:{
+    "Content-Type":"application/json"
+  },
     body:JSON.stringify({data:values}),
   })
 
@@ -50,7 +53,6 @@ const handleSubmit = async (e)=>{
     const evt=await res.json()
   
     router.push(`/events/${evt.data.attributes.slug}`)
-
   }
 }
 
@@ -65,7 +67,7 @@ const hanleInputChange=(e)=>{
   return (
     <Layout title="Add New Event">
       <Link href="/events">Go Back</Link>
-       <h1> Add Event</h1>
+       <h1> Edit Event</h1>
        <ToastContainer/>
        <form onSubmit={handleSubmit} className={styles.form}>
          <div className={styles.grid}>
@@ -87,7 +89,7 @@ const hanleInputChange=(e)=>{
            </div>
            <div>
             <lable htmlFor="date">Date</lable>
-           <input type="date" id="date" name="date" value={values.date}  onChange={hanleInputChange}/>
+           <input type="date" id="date" name="date" value={moment(values.date).format("yyyy-MM-DD")}  onChange={hanleInputChange}/>
            </div>
            <div>
             <lable htmlFor="time">Time</lable>
@@ -103,9 +105,22 @@ const hanleInputChange=(e)=>{
            
          </div>
 
-        <input type="submit" value="Add event" className="btn"/>
+        <input type="submit" value="Update Event" className="btn"/>
 
        </form>
          </Layout>
   )
+}
+
+
+export async function getServerSideProps({params:{id}}){
+
+    const res =await fetch(`${API_URL}/events/${id}`)
+    const data= await res.json()    
+    return{
+        props:{
+            evt:data.data
+        }
+
+    }
 }

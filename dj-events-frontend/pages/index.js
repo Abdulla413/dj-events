@@ -6,13 +6,7 @@ import {useEffect, useState} from "react"
 import events from './api/events'
 
 export default function Home({events}) {
-// const [events, setEvents]=useState([]);
-// useEffect (()=>{
-//   fetch(`${API_URL}/api/events?_sort=date:ASC&_limit=3`)
-//   .then((res)=> res.json())
-//   .then(setEvents);
-
-// }, []);
+  console.log(events, "987654")
  
   return (
     <Layout>
@@ -33,11 +27,11 @@ export default function Home({events}) {
 
 export async function getStaticProps(){
   const res= await fetch(`${API_URL}/events?_sort=date:ASC&_limit=3&populate=*`)
-  const data= await res.json()
- const events=data.data
+  const events= await res.json()
+
 
   return{
-    props:{events},
+    props:{events:events.data},
     revalidate:1
   }
 }
