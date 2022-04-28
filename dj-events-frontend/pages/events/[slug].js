@@ -13,7 +13,6 @@ import { useRouter } from 'next/router'
 
 
 export default function EventPage({evt}) {
-  console.log(evt, "i am single evt")
 
   const router = useRouter()
 

@@ -3,10 +3,9 @@ import {API_URL}from "@/config/index"
 import EventItem from '@/components/EventItem'
 import Link from "next/link"
 import {useEffect, useState} from "react"
-import events from './api/events'
 
 export default function Home({events}) {
-  console.log(events, "987654")
+
  
   return (
     <Layout>
@@ -26,7 +25,8 @@ export default function Home({events}) {
 }
 
 export async function getStaticProps(){
-  const res= await fetch(`${API_URL}/events?_sort=date:ASC&_limit=3&populate=*`)
+  const res= await fetch(`${API_URL}/events?sort=date:desc&pagination[limit]=3&populate=*`)
+  
   const events= await res.json()
 
 

@@ -1,4 +1,5 @@
 import Layout from "@/components/Layout";
+import Modal from "@/components/Modal";
 import {useState} from "react"
 import {useRouter} from "next/router"
 import Link from "next/link"
@@ -7,9 +8,12 @@ import styles from "@/styles/Form.module.css"
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import moment from "moment";
+import Image from "next/image";
+import { FaImage } from "react-icons/fa";
+import ImageUpload from "@/components/ImageUpload";
 
 export default function EditEventPage({evt}) {
-    console.log(evt)
+    
   
 const [values, setValues]=useState({
   name:evt.attributes.name,
@@ -24,10 +28,17 @@ const [values, setValues]=useState({
 
 const router =useRouter();
 
+const [imagePreview, setImagePreview]=useState(
+  evt.attributes.image.data?
+  evt.attributes.image.data.attributes.formats.thumbnail.url:null
+  )
+
+const [showModal, setShowModal]=useState(false)  
+
 const handleSubmit = async (e)=>{
   e.preventDefault()
   
-  // validatio
+  // validation
 
   const hasEmpityFields=Object.values(values).some(
     (element)=>element===""
@@ -61,6 +72,14 @@ const hanleInputChange=(e)=>{
   const {name, value}=e.target
   setValues({...values, [name]:value})
 
+}
+
+const imageUploaded = async(e)=>{
+  const res= await fetch(`${API_URL}/events/${evt.id}`)
+  const data=await res.json()
+
+  // setImagePreview(data.image.data.attributes.formats.thumbnail.url)
+  setShowModal(false)
 }
 
 
@@ -108,18 +127,38 @@ const hanleInputChange=(e)=>{
         <input type="submit" value="Update Event" className="btn"/>
 
        </form>
-         </Layout>
+
+       <h2>Event Image</h2>
+       {imagePreview?(<Image src={imagePreview} height="100" width="170" />
+       ):
+       (<div>
+         <p>No Image Uploded</p>
+       </div>)
+       }
+
+<div>
+  <button onClick={()=>setShowModal(true)} className="btn-secondary">
+<FaImage/> Set Image
+  </button>
+</div>
+<Modal show={showModal} onClose={()=>setShowModal(false)}>
+<ImageUpload evtId={evt.id} imageUploaded={imageUploaded}/>
+</Modal>
+
+</Layout>
   )
 }
 
 
-export async function getServerSideProps({params:{id}}){
+export async function getServerSideProps({params:{id}, req}){
 
-    const res =await fetch(`${API_URL}/events/${id}`)
-    const data= await res.json()    
+    const res =await fetch(`${API_URL}/events?filters[id][$eq]=${id}&populate=*`)
+    const data= await res.json();
+    // console.log(req.headers.cookie)
+  
     return{
         props:{
-            evt:data.data
+            evt:data.data[0]
         }
 
     }

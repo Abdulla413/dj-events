@@ -7,7 +7,7 @@ import { useRouter } from 'next/router'
 
 export default function SearchPage({events}) {
     const router = useRouter();
-    console.log(events, "from search")
+
   return (
     <Layout title="Search Results">
         <Link href="/events">Go Back</Link>
@@ -58,7 +58,7 @@ export async function getServerSideProps({ query: { term } }) {
    
     const res = await fetch(`${API_URL}/events?${query}&populate=*`)
     const events = await res.json()
-    console.log(events, "123456")
+   
    
     return {
       props: { events: events.data },
